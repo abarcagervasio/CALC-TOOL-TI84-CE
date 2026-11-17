@@ -26,6 +26,7 @@ void display_help() {
     printf("Usage: ./pineapple [operation] [args]\n");
     printf("Valid operations include:\n");
     printf("\ttest [file]\t\t\tRuns all tests in file\n");
+    printf("\tintegral [expression] [respect to]\n");
     printf("\tsimplify [expression]\t\tSimplifies expression. Also evaluates constants.\n");
     printf("\tgcd [expression1] [expression2]\tPrints the GCD of the two expressions\n");
     printf("\tfactor [expression]\t\tFactors expression\n");
@@ -450,7 +451,46 @@ int run_derivative(int argc, char **argv) {
 
     return 0;
 }
+int run_integral(int argc, char **argv) {
+    uint8_t *trimmed;
+    unsigned trimmed_len;
+    pcas_error_t err;
+    pcas_ast_t *e = NULL, *respect_to = NULL;
+    uint8_t *output;
+    unsigned output_len;
 
+    if (argc <= 3) {
+        display_help();
+        return -1;
+    }
+
+    trimmed = trim(argv[2], &trimmed_len);
+    e = parse(trimmed, trimmed_len, str_table, &err);
+    free(trimmed);
+
+    if (err == E_SUCCESS) {
+        trimmed = trim(argv[3], &trimmed_len);
+        respect_to = parse(trimmed, trimmed_len, str_table, &err);
+        free(trimmed);
+    }
+
+    if (err == E_SUCCESS && e != NULL && respect_to != NULL) {
+        simplify(e, SIMP_ALL);
+        integral(e, respect_to);
+        simplify(e, SIMP_ALL);
+        simplify_canonical_form(e, CANONICAL_ALL);
+
+        output = export_to_binary(e, &output_len, str_table, &err);
+        if (err == E_SUCCESS && output != NULL) {
+            printf("Output: %.*s\n", output_len, output);
+            free(output);
+        }
+    }
+
+    ast_Cleanup(e);
+    ast_Cleanup(respect_to);
+    return 0;
+}
 int main(int argc, char **argv) {
     int ret;
 
@@ -461,6 +501,7 @@ int main(int argc, char **argv) {
         else if(!strcmp(argv[1], "factor"))     ret = run_factor(argc, argv);
         else if(!strcmp(argv[1], "expand"))     ret = run_expand(argc, argv);
         else if(!strcmp(argv[1], "derivative")) ret = run_derivative(argc, argv);
+        else if(!strcmp(argv[1], "integral"))   ret = run_integral(argc, argv);
         else {
             display_help();
             return -1;

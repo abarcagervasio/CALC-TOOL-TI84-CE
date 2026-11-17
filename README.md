@@ -9,6 +9,16 @@ PineappleCAS is a computer algebra system for the TI-84 Plus CE calculators. It 
 
 <hr>
 
+## Symbolic Integration Engine (Fork Enhancement)
+
+This fork extends **PineappleCAS** for the TI-84 Plus CE (eZ80 processor) with a custom **Symbolic Antiderivative Engine** written in C:
+
+* **AST & Pattern-Matching Architecture:** Added the `OP_INTEGRAL` operator (`src/ast.h`) and recursive structural evaluation (`src/cas/integral.c`, `src/cas/integral.h`) supporting linearity ($\int (f + g)\,dx$), constant multiples ($\int c \cdot f\,dx$), the general power rule ($\int x^n\,dx$), exponential/logarithmic rules ($e^x$, $\ln(x)$, $x^{-1}$), and trigonometric/inverse-trig antiderivatives.
+* **Native Calculator GUI & TI-Basic Support:** Added an interactive **Integral** menu option (`src/calc/gui.c`) with variable selection (`X`, `Y`, `T`, $\theta$, etc.) and the `"INT,Y1,Y2,X"` TI-Basic command (`src/calc/interface.c`).
+* **Example:** Integrating `3X^2 + cos(X)` with respect to `X` automatically simplifies to `X^3 + sin(X)`.
+
+---
+
 ## Screenshots
 ![Main screen](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/simplify.png "GUI")
 ![Complex example](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/i^i.png "Complex simplification")

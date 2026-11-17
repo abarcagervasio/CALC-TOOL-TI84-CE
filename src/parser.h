@@ -9,7 +9,7 @@
 #define is_tok_operator(tok) (is_tok_unary_operator(tok) || is_tok_binary_operator(tok))
 
 #define is_tok_unary_function(tok)    ((tok) >= TOK_INT && (tok) <= TOK_TANH_INV)
-#define is_tok_nary_function(tok)     ((tok) == TOK_LOG_BASE || (tok) == TOK_DERIV)
+#define is_tok_nary_function(tok)     ((tok) == TOK_LOG_BASE || (tok) == TOK_DERIV || (tok) == TOK_INTEGRAL)
 #define is_tok_function(tok)          (is_tok_unary_function(tok) || is_tok_nary_function(tok))
 
 /*Ti Tokens, used for reading from yvars*/
@@ -29,8 +29,9 @@ typedef enum _TokenType {
     TOK_RECIPROCAL, TOK_SQUARE, TOK_CUBE,
     TOK_FACTORIAL,
 
-    TOK_LOG_BASE,
+  TOK_LOG_BASE,
     TOK_DERIV,
+    TOK_INTEGRAL,
 
     TOK_INT, TOK_ABS,
 

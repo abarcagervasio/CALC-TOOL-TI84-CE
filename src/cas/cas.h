@@ -3,6 +3,7 @@
 
 #include "../ast.h"
 #include "derivative.h"
+#include "integral.h"
 
 /*
     Changes ast to a form we work with in the simpilfier.
