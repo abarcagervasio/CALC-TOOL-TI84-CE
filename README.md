@@ -1,168 +1,81 @@
-<p align="center"><img src="https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/logo.png"></p>
-<h2 align="center"><b>PineappleCAS</b></h2>
-<p align="center">
-<a href="https://travis-ci.org/nathanfarlow/PineappleCAS" alt="Build Status"><img src="https://travis-ci.org/nathanfarlow/PineappleCAS.svg"></a>
-</p>
-<p>
-PineappleCAS is a computer algebra system for the TI-84 Plus CE calculators. It is designed as a faster, cleaner, more useful, memory-leak-free alternative to the <a href="https://github.com/nathanfarlow/SymbolicDerivative">SymbolicDerivative</a> project. PineappleCAS uses the <a href="https://github.com/creachadair/imath">imath library</a> for arbitrary precision math.
-</p>
+<div align="center">
+  <h1>CALC-TOOL-TI84-CE</h1>
+  <p><strong>Symbolic Calculus &amp; Computer Algebra System for the TI-84 Plus CE</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/Platform-TI--84%20Plus%20CE%20(eZ80)-blue" alt="Platform">
+    <img src="https://img.shields.io/badge/Language-C%20(CEdev)-brightgreen" alt="Language">
+    <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="License">
+  </p>
+</div>
 
 <hr>
 
-## Symbolic Integration Engine (Fork Enhancement)
+## Overview
 
-This fork extends **PineappleCAS** for the TI-84 Plus CE (eZ80 processor) with a custom **Symbolic Antiderivative Engine** written in C:
-
-* **AST & Pattern-Matching Architecture:** Added the `OP_INTEGRAL` operator (`src/ast.h`) and recursive structural evaluation (`src/cas/integral.c`, `src/cas/integral.h`) supporting linearity ($\int (f + g)\,dx$), constant multiples ($\int c \cdot f\,dx$), the general power rule ($\int x^n\,dx$), exponential/logarithmic rules ($e^x$, $\ln(x)$, $x^{-1}$), and trigonometric/inverse-trig antiderivatives.
-* **Native Calculator GUI & TI-Basic Support:** Added an interactive **Integral** menu option (`src/calc/gui.c`) with variable selection (`X`, `Y`, `T`, $\theta$, etc.) and the `"INT,Y1,Y2,X"` TI-Basic command (`src/calc/interface.c`).
-* **Example:** Integrating `3X^2 + cos(X)` with respect to `X` automatically simplifies to `X^3 + sin(X)`.
+**CALC-TOOL-TI84-CE** is a native C Computer Algebra System (CAS) engineered for the TI-84 Plus CE (eZ80 processor). Built on an Abstract Syntax Tree (AST) and pattern-matching identity engine with arbitrary-precision arithmetic, it extends traditional algebraic simplification and differentiation with a **Symbolic Integration Engine**, an interactive on-calculator GUI, and TI-Basic scripting hooks.
 
 ---
 
-## Screenshots
-![Main screen](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/simplify.png "GUI")
-![Complex example](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/i^i.png "Complex simplification")
-![Trig example](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/trig.png "Trig identity simplification")
-![Derivative example](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/deriv.png "Derivative with respect to X")
-![Exponent example](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/eval_exponent.png "Large exponent")
-![Factorial example](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/eval_factorial.png "Large factorial")
-![Expand example](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/expand.png "Expand expression")
-![Basic interface](https://raw.githubusercontent.com/nathanfarlow/PineappleCAS/master/img/interface.png "Basic interface")
+## Key Features
 
-# Installation
-* Download the latest PineappleCAS release from https://github.com/nathanfarlow/PineappleCAS/releases and send PCAS.8xp to your calculator's **archive memory**. It is very important that the program is archived to prevent Error: Memory when running the program.
-* Download the latest C libraries from https://github.com/CE-Programming/libraries/releases and send to your calculator.
-* If you have CE OS 5.3 or higher, simply execute prgmPCAS on the calculator. If not, you will have to unarchive PCAS and do Asm(prgmPCAS from the catalog.
-* Navigate the GUI with the arrow keys, and press enter on GUI elements to change their value.
-* Press clear to exit the program.
+* **Symbolic Integration Engine (`src/cas/integral.c`, `src/cas/integral.h`):**
+  * **Linearity & Constant Multiples:** Automatically splits sums ($\int (f + g)\,dx$) and factors out constants ($\int c \cdot f(x)\,dx$).
+  * **General Power Rule:** Evaluates $\int x^n\,dx = \frac{x^{n+1}}{n+1}$ for arbitrary rational/symbolic constants ($n \neq -1$), plus logarithmic handling for $\int x^{-1}\,dx$ and $\int \frac{1}{x}\,dx$.
+  * **Elementary Functions:** Built-in antiderivative table for exponential ($e^x$), logarithmic ($\ln(x)$), trigonometric ($\sin, \cos, \tan, \sec^2, \csc^2$), and inverse-trigonometric forms.
+* **Algebra & Differential Calculus:** Symbolic simplification, polynomial expansion, substitution, exact constant evaluation, and symbolic differentiation with respect to any variable ($A$–$Z$, $\theta$).
+* **Native GUI & TI-Basic Integration:**
+  * Interactive **Integral** tab directly inside the calculator app (`src/calc/gui.c`).
+  * Programmatic TI-Basic support via `"INT,Y1,Y2,X"` (`src/calc/interface.c`).
 
-Note that if you encounter the error "Attempted to use a variable or function where it is not valid" on OS versions 5.5 or newer, this is because TI removed the ability to run ASM programs on these OS versions. This is not an issue with PineappleCAS. You can jailbreak your calculator with [this tool](https://yvantt.github.io/arTIfiCE/) to restore the functionality and then try running PineappleCAS again.
+---
 
-# Build
-Download and install the latest CE C toolchain from https://github.com/CE-Programming/toolchain
+## Usage Examples
 
-**Compile for calculator:**
-```
-git clone https://github.com/nathanfarlow/PineappleCAS
-cd PineappleCAS
-make
-```
-The calculator program compiles consistently on Ubuntu, but Windows has a problem with it. Executing make on Windows many times seems to work for some reason. (I blame the compiler!)
+### 1. Using the Calculator GUI
+1. Enter your function into **`Y1`** (for example: `3X^2 + cos(X)`).
+2. Launch **`PCAS`** from the **`PRGM`** menu.
+3. Select **`Integral`** from the left function panel, choose your variable of integration (`X`), and press **`Integrate`**.
+4. View the simplified antiderivative in **`Y2`**:
+   * **Input (`Y1`):** `3X^2 + cos(X)`
+   * **Output (`Y2`):** `X^3 + sin(X)`
 
-**Compile for PC:**
-```
-git clone https://github.com/nathanfarlow/PineappleCAS
-cd PineappleCAS
-make -f pc.makefile
-```
-# TI-Basic interface
+### 2. Calling from a TI-Basic Program
+Store a command string in `Ans` and run `prgmPCAS` (`"INT,Y1,Y2,X"` followed by `Asm(prgmPCAS)`). It returns `1` in `Ans` on success and writes the symbolic antiderivative into `Y2`.
 
-## Overview
-You can call PCAS from within a basic program. The TI-Basic interface can do everything that is possible through the GUI. PCAS is very stable but there is always a chance of a RAM reset. This will cause a loss of all unarchived programs, including the one that is currently calling PCAS if it is not archived. More likely is that an input is too difficult for PCAS, and it will take too long for PCAS to terminate, necessitating a manual RAM reset on the back of the calculator. A way to work around this problem is to archive all programs, including PCAS, and use a shell like Cesium to edit archived programs.
+---
 
-## Usage
-PCAS reads a command from the Ans variable. The command must be a string. PCAS ignores spaces in the string. 1 is written back to the Ans variable if the command is successful, or 0 if it is not. PCAS will automatically alert the user if there is a syntax error in the command that is passed, but it will fail silently if it is unable to perform a correctly formatted command and let the basic program handle the error by reading the Ans variable.
+## Installation
 
-Some commands have optional boolean options, indicated by [optional boolean options] in the descriptions. These can be left off the command completely and will all be set as 1 by default. For example: SIMP,Y1,Y2 is the same as SIMP,Y1,Y2,111111. Boolean options are not separated by commas. See below for a list of commands and their usages.
+1. Download **`PCAS.8xp`** from the [Releases](https://github.com/abarcagervasio/CALC-TOOL-TI84-CE/releases) page.
+2. Download the [TI-84 Plus CE C Libraries](https://github.com/CE-Programming/libraries/releases) (`clibs.8xg`).
+3. Using **TI Connect CE**, send both `PCAS.8xp` and `clibs.8xg` to your calculator's **Archive** memory (archiving prevents `ERR:MEMORY` during execution).
+4. Run `prgmPCAS` from the `PRGM` menu. *(On OS 5.5+, use [arTIfiCE](https://yvantt.github.io/arTIfiCE/) to launch ASM programs.)*
 
-**IMPORTANT: when specifying an input and output variable, use their TI tokens.** For example, when specifying Y1 as the input, select it from the function menu and **do not** type 'Y' then '1'. Valid variables are Y1 through Y0, Str1 through Str0, and Ans. In this case, Ans is useless because it will be overwritten by 1 or 0 when PCAS terminates anyway.
+---
 
-## Simplify
-**Usage:** SIMP,[Input],[Output],[6 optional boolean options]
+## Building from Source
 
-**Description:** Automatically simplifies like terms. Automatically takes derivative of any nDeriv() tokens if it can. Simplifies identities based on the boolean options passed.
+1. Install the [CE C Toolchain (CEdev)](https://github.com/CE-Programming/toolchain).
+2. Clone this repository and compile:
+   * `git clone https://github.com/abarcagervasio/CALC-TOOL-TI84-CE.git`
+   * `cd CALC-TOOL-TI84-CE`
+   * `make`
+3. The compiled calculator binary will be generated at `bin/PCAS.8xp`.
 
-**Options:** The boolean options indicate which simplification identities to use. If not included, the simplification command will use all identities.
+---
 
-Boolean options from left to right:
-- Boolean 1: Use basic identities (inverses of functions and some simple log identities)
-- Boolean 2: Use trig identities (periodic, double angle, and other trig identities)
-- Boolean 3: Use hyperbolic identities
-- Boolean 4: Use complex identities (Euler's identity, rewrites functions with complex arguments using complex logarithm)
-- Boolean 5: Evaluate trig constants (Evaluate trig constants like sin(pi/2) = 1)
-- Boolean 6: Evaluate inverse trig constants (Evaluate inverse trig constants like asin(-1) = -pi/2)
+## Roadmap
 
-**Example program:**
-```
-:"Simplify Y1, put the result in Y2, using all identities. (Will be slow depending on input)"
-:"SIMP,Y1,Y2"
-:Asm(prgmPCAS)
-:
-:"Simplify Y1, put the result in Y2, use only trig identities and complex identities"
-:"SIMP,Y1,Y2,010100"
-:Asm(prgmPCAS)
-```
+* [x] Symbolic antiderivative engine (linearity, constant multiples, power rule, elementary functions)
+* [x] Interactive GUI `Integral` tab and TI-Basic `"INT"` command
+* [ ] $u$-Substitution (reverse chain rule for composite functions)
+* [ ] Integration by parts ($\int u\,dv = uv - \int v\,du$)
+* [ ] Definite integrals ($\int_a^b f(x)\,dx$) using the Fundamental Theorem of Calculus
 
-## Evaluate
-**Usage:** EVAL,[Input],[Output]
+---
 
-**Description:** Evaluates functions like int(X), abs(X), integer factorials, and integer bases to integer exponents.
+## Credits & License
 
-**Example program:**
-```
-:"Evaluate all constants in Y1 and write result to Y2."
-:"EVAL,Y1,Y2"
-:Asm(prgmPCAS)
-```
-
-## Substitute
-**Usage:** SUB,[Input],[Output],[Input to substitute from],[Input to substitute to]
-
-**Description:** Substitutes an expression for another.
-
-**Example program:**
-```
-:"Use the expression in Y1, Substitute any instance of Str1 with Str2, then write it to Y2."
-:"SUB,Y1,Y2,Str1,Str2"
-:Asm(prgmPCAS)
-```
-
-## Expand
-**Usage:** EXP,[Input],[Output],[2 optional boolean options]
-
-**Description:** Expands multiplication.
-
-**Options:** The boolean options indicate what to expand. If not included, the expand command will expand both multiplication and powers. This function is unoptimized, and very, very slow. You have been warned!
-
-Boolean options from left to right:
-- Boolean 1: Expand multiplication (A+B)(C+D) or A(B+C+2)
-- Boolean 2: Expand powers (A+B)^3
-
-**Example program:**
-```
-:"Fully expand Y1 multiplication and powers and write the result to Y2."
-:"EXP,Y1,Y2"
-:Asm(prgmPCAS)
-:
-:"Expand only the powers of Y1 and write result to Y2."
-:"EXP,Y1,Y2,01"
-:Asm(prgmPCAS)
-```
-
-## Derivative
-**Usage:** DERIV,[Input],[Output],[Variable respect to]
-
-**Description:** Takes the derivative of input with respect to [Variable respect to] and writes the result to output. Valid variables are A-Z, and theta.
-
-**Example program:**
-```
-:"Take the derivative of Y1 with respect to X and put the result in Y2."
-:"DERIV,Y1,Y2,X"
-:Asm(prgmPCAS)
-```
-
-## Good things to know:
-PCAS automatically calls SIMP,[Input],[Output],000000 after every command, so simplifying after is only necessary if you want to simplify further with identities.
-
-Remember that you can definitely use strings as input and output as well. You can also check if PCAS was able to successfully execute the command. Here's an example incorporating both of those things:
-```
-:"Take derivative of Str1 with respect to B and write to Y1."
-:"DERIV,Str1,Y1,B"
-:Asm(prgmPCAS)
-:If Ans
-:Then
-:Disp "SUCCESS!"
-:Else
-:Disp "FAIL :("
-:End
-```
+* Originally forked from [PineappleCAS](https://github.com/nathanfarlow/PineappleCAS) by Nathan Farlow.
+* Arbitrary-precision rational arithmetic powered by [imath](https://github.com/creachadair/imath) by Michael J. Fromberger.
+* Licensed under the **MIT License** — see [`LICENSE`](LICENSE) for details.
