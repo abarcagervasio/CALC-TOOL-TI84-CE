@@ -27,6 +27,15 @@ pcas_id_t id_int_const_mult = {"intgrl(C*A,X)", "C*intgrl(A,X)"};
 /* Helper declared in derivative.c */
 extern bool is_constant(pcas_ast_t *e, pcas_ast_t *respect_to);
 
+/* Helper: checks if a constant exponent node equals -1 (integer or -1/1) */
+static bool is_minus_one(pcas_ast_t *n) {
+    if (is_ast_int(n, -1))
+        return true;
+    if (n->type == NODE_NUMBER && num_Compare(n->op.num, num_FromInt(-1)) == 0)
+        return true;
+    return false;
+}
+
 bool eval_integral_nodes(pcas_ast_t *e) {
     pcas_ast_t *expr, *respect_to;
     pcas_ast_t *child;
@@ -45,11 +54,15 @@ bool eval_integral_nodes(pcas_ast_t *e) {
     expr = ast_ChildGet(e, 0);
     respect_to = ast_Copy(ast_ChildGet(e, 1));
 
+    /* Simplify integrand first so roots like 4x√(X^3) become X^(3/4) */
+    simplify(expr, SIMP_ALL);
+
     /* 1. Constant Rule: integral(C, x) = C * x */
     if (is_constant(expr, respect_to)) {
         pcas_ast_t *mult = ast_MakeOperator(OP_MULT);
         ast_ChildAppend(mult, ast_Copy(expr));
         ast_ChildAppend(mult, ast_Copy(respect_to));
+        simplify(mult, SIMP_ALL);
         replace_node(e, mult);
         ast_Cleanup(respect_to);
         return true;
@@ -88,7 +101,7 @@ bool eval_integral_nodes(pcas_ast_t *e) {
 
         if (has_const && has_var) {
             pcas_ast_t *sub_int = ast_MakeOperator(OP_INTEGRAL);
-            simplify(var_part, SIMP_COMMUTATIVE);
+            simplify(var_part, SIMP_ALL);
             ast_ChildAppend(sub_int, var_part);
             ast_ChildAppend(sub_int, ast_Copy(respect_to));
 
@@ -103,19 +116,21 @@ bool eval_integral_nodes(pcas_ast_t *e) {
         }
     }
 
-    /* 4. Power Rule: integral(x^n, x) = x^(n+1)/(n+1) when n is constant and n != -1 */
+    /* 4. Power Rule: integral(x^n, x) = x^(n+1)/(n+1) for integer & fractional constants n != -1 */
     if (isoptype(expr, OP_POW) &&
         ast_Compare(ast_ChildGet(expr, 0), respect_to) &&
         is_constant(ast_ChildGet(expr, 1), respect_to) &&
-        !is_ast_int(ast_ChildGet(expr, 1), -1)) {
-        
+        !is_minus_one(ast_ChildGet(expr, 1))) {
+
         pcas_ast_t *n = ast_ChildGet(expr, 1);
         pcas_ast_t *n_plus_1 = ast_MakeOperator(OP_ADD);
         ast_ChildAppend(n_plus_1, ast_Copy(n));
         ast_ChildAppend(n_plus_1, ast_MakeNumber(num_FromInt(1)));
+        simplify(n_plus_1, SIMP_ALL);
 
         pcas_ast_t *new_pow = ast_MakeBinary(OP_POW, ast_Copy(respect_to), ast_Copy(n_plus_1));
         pcas_ast_t *div = ast_MakeBinary(OP_DIV, new_pow, n_plus_1);
+        simplify(div, SIMP_ALL);
 
         replace_node(e, div);
         ast_Cleanup(respect_to);
@@ -139,5 +154,12 @@ void integral(pcas_ast_t *e, pcas_ast_t *respect_to) {
 
     while (eval_integral_nodes(int_node));
 
-    replace_node(e, int_node);
+    simplify(int_node, SIMP_ALL);
+
+    /* Append "+ C" constant of integration */
+    pcas_ast_t *with_c = ast_MakeOperator(OP_ADD);
+    ast_ChildAppend(with_c, int_node);
+    ast_ChildAppend(with_c, ast_MakeSymbol('C'));
+
+    replace_node(e, with_c);
 }
