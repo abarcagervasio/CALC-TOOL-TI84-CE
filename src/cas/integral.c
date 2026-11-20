@@ -31,8 +31,6 @@ extern bool is_constant(pcas_ast_t *e, pcas_ast_t *respect_to);
 static bool is_minus_one(pcas_ast_t *n) {
     if (is_ast_int(n, -1))
         return true;
-    if (n->type == NODE_NUMBER && num_Compare(n->op.num, num_FromInt(-1)) == 0)
-        return true;
     return false;
 }
 
